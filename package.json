@@ -1,0 +1,13 @@
+{
+  "name": "casa-501",
+  "private": true,
+  "type": "module",
+  "description": "App de la casa 501: aseo, basura, avisos y cuentas",
+  "scripts": {
+    "notificar": "node scripts/notificar.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "web-push": "^3.6.7"
+  }
+}

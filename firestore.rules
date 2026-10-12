@@ -1,0 +1,10 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Solo quien conoce el código de la casa puede leer o escribir sus datos.
+    // Nadie puede listar las casas, así que el código funciona como una llave.
+    match /casas/{casa}/{coleccion}/{documento=**} {
+      allow read, write: if casa.size() >= 20;
+    }
+  }
+}

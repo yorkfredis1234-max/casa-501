@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>501 · Claves de notificaciones</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app" style="padding-bottom:40px">
+    <div class="cabecera-texto"><div class="eyebrow">Paso 3 de la guía · se hace una sola vez</div><h1>Claves de notificaciones</h1></div>
+    <p>Esta página crea las dos claves que 501 necesita para enviar notificaciones. Se generan en tu navegador y no se envían a ningún lado.</p>
+    <button class="btn lleno" id="generar">Generar claves</button>
+    <section id="resultado" class="lista" hidden>
+      <div class="tarjeta" style="gap:8px">
+        <span class="etiqueta">Clave pública (VAPID_PUBLIC_KEY)</span>
+        <div class="codigo" id="publica"></div>
+        <span class="sub">Pégala en <b>firebase-config.js</b> y también como secreto <b>VAPID_PUBLIC_KEY</b> en GitHub.</span>
+      </div>
+      <div class="tarjeta" style="gap:8px">
+        <span class="etiqueta">Clave privada (VAPID_PRIVATE_KEY)</span>
+        <div class="codigo" id="privada"></div>
+        <span class="sub">Pégala SOLO como secreto <b>VAPID_PRIVATE_KEY</b> en GitHub. No la pongas en ningún archivo ni la compartas.</span>
+      </div>
+    </section>
+  </main>
+  <script>
+    const b64url = (buf) => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    document.getElementById('generar').addEventListener('click', async () => {
+      const par = await crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, true, ['sign', 'verify']);
+      const publica = await crypto.subtle.exportKey('raw', par.publicKey);
+      const jwk = await crypto.subtle.exportKey('jwk', par.privateKey);
+      document.getElementById('publica').textContent = b64url(publica);
+      document.getElementById('privada').textContent = jwk.d;
+      document.getElementById('resultado').hidden = false;
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+// Configuración de la casa 501.
+// Si llega un roomie nuevo, agrégalo a PERSONAS y la rotación se recalcula sola.
+
+export const PERSONAS = [
+  { nombre: 'York',    color: 'azul' },
+  { nombre: 'Angeles', color: 'naranja' },
+  { nombre: 'Juanchy', color: 'verde' },
+];
+
+// Tareas de aseo de los martes, en orden.
+export const TAREAS = [
+  { id: 'barrer',  nombre: 'Barrer',          detalle: 'Toda la casa' },
+  { id: 'trapear', nombre: 'Trapear',         detalle: 'Después de barrer' },
+  { id: 'nevera',  nombre: 'Nevera y cocina', detalle: 'Limpiar y botar lo vencido' },
+];
+
+// Primer martes de la rotación: ese día a la persona 1 le toca la tarea 1,
+// a la persona 2 la tarea 2, etc. Cada semana todo se corre un puesto.
+export const ANCLA = '2026-10-13';
+
+// Días en que pasa el camión de la basura (0 = domingo … 6 = sábado) y hora.
+export const BASURA = { dias: [3, 6], hora: '6:00 a.m.' };
