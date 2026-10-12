@@ -4,19 +4,23 @@
 //   recordatorio  martes 11:50 a.m. solo a quien no ha visto el aviso ni terminó
 //   basura        martes y viernes 6:50 p.m.  a todos
 //   avisos        cada 5 minutos    avisos nuevos marcados "Notificar a todos"
+//   lavar         todos los días 6:50 a.m.  a quien le toca lavar hoy
+//   recoger       todos los días 4:50 p.m.  a quien le toca recoger la ropa hoy
 //   prueba        manual            una notificación de prueba a todos
 //
 // Uso: node scripts/notificar.mjs <modo>
 // Prueba sin Firebase: DRY_RUN=1 DATOS_PRUEBA=datos.json AHORA=2026-10-13T00:50:00Z node scripts/notificar.mjs aseo
 import { readFileSync } from 'node:fs';
-import { PERSONAS, BASURA } from '../config.js';
-import { asignacion, martesActual, proximaBasura, diaSemana, fechaLarga, DIAS } from '../logica.js';
+import { PERSONAS, BASURA, LAVADO } from '../config.js';
+import { asignacion, martesActual, proximaBasura, diaSemana, fechaLarga, DIAS, ropaDelDia, ahoraBogota } from '../logica.js';
 
 const HORARIOS = {
   '50 0 * * 2': 'aseo',
   '50 16 * * 2': 'recordatorio',
   '50 23 * * 2,5': 'basura',
   '*/5 * * * *': 'avisos',
+  '50 11 * * *': 'lavar',
+  '50 21 * * *': 'recoger',
 };
 const modo = (process.argv[2] || '').trim() || HORARIOS[(process.argv[3] || '').trim()];
 const AHORA = process.env.AHORA ? new Date(process.env.AHORA) : new Date();
@@ -148,6 +152,31 @@ const modos = {
         }
       }
       await datos.fusionar(`avisos/${a.id}`, { notificado: true });
+    }
+  },
+  async lavar(datos) {
+    const { iso } = ahoraBogota(AHORA);
+    const { lavan } = ropaDelDia(iso);
+    console.log(`Lavadora ${fechaLarga(iso)}: lavan ${lavan.join(', ') || 'nadie'}`);
+    for (const p of lavan) {
+      const otros = lavan.filter((n) => n !== p);
+      await enviarA(datos, p, {
+        title: 'Hoy te toca lavar',
+        body: `${p}, hoy es tu día de lavadora${otros.length ? ` (la compartes con ${otros.join(' y ')})` : ''}.`,
+        tag: `lavar-${iso}`, url: './',
+      });
+    }
+  },
+  async recoger(datos) {
+    const { iso } = ahoraBogota(AHORA);
+    const { recogen } = ropaDelDia(iso);
+    console.log(`Lavadora ${fechaLarga(iso)}: recogen ${recogen.join(', ') || 'nadie'}`);
+    for (const p of recogen) {
+      await enviarA(datos, p, {
+        title: 'Recoge tu ropa hoy',
+        body: `${p}, hoy toca recoger la ropa que lavaste el ${DIAS[(diaSemana(iso) + 7 - LAVADO.diasRecoger) % 7]}.`,
+        tag: `recoger-${iso}`, url: './',
+      });
     }
   },
   async prueba(datos) {
