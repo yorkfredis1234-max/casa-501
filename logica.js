@@ -1,6 +1,6 @@
 // Lógica pura de 501: fechas en hora de Bogotá, rotación del aseo y basura.
 // La usan la app (navegador) y el script de notificaciones (Node).
-import { PERSONAS, TAREAS, ANCLA, BASURA } from './config.js';
+import { PERSONAS, TAREAS, ANCLA, BASURA, LAVADO } from './config.js';
 
 const DIA = 86400000;
 const OFFSET_BOGOTA = -5 * 3600000; // Colombia no cambia de horario
@@ -76,6 +76,25 @@ export function proximaBasura(ahora = new Date()) {
     return { iso: recogida, avisoIso: sumarDias(recogida, -1), enDias: i };
   }
   return null;
+}
+
+/** Lavadora en una fecha: quién lava y quién recoge la ropa ese día. */
+export function ropaDelDia(iso) {
+  const dow = diaSemana(iso);
+  return {
+    lavan: LAVADO.turnos.filter((t) => t.dia === dow).map((t) => t.persona),
+    recogen: LAVADO.turnos.filter((t) => mod(t.dia + LAVADO.diasRecoger, 7) === dow).map((t) => t.persona),
+  };
+}
+
+/** Turnos agrupados por día de lavado: [{dia, recoger, personas}] empezando desde hoy. */
+export function turnosLavado(ahora = new Date()) {
+  const hoy = ahoraBogota(ahora).dow;
+  const grupos = {};
+  for (const t of LAVADO.turnos) (grupos[t.dia] ||= []).push(t.persona);
+  return Object.entries(grupos)
+    .map(([dia, personas]) => ({ dia: Number(dia), recoger: mod(Number(dia) + LAVADO.diasRecoger, 7), personas }))
+    .sort((a, b) => mod(a.dia - hoy, 7) - mod(b.dia - hoy, 7));
 }
 
 /** ¿Hay que marcar como "visto" el aviso de aseo al abrir la app? (lunes desde las 7 p.m. o martes) */

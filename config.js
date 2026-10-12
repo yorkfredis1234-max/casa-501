@@ -18,5 +18,16 @@ export const TAREAS = [
 // a la persona 2 la tarea 2, etc. Cada semana todo se corre un puesto.
 export const ANCLA = '2026-10-13';
 
+// Turnos de lavadora (0 = domingo … 6 = sábado). La ropa se recoge DIAS_RECOGER días después.
+export const LAVADO = {
+  turnos: [
+    { persona: 'York',    dia: 3 }, // miércoles → recoge el viernes
+    { persona: 'Angeles', dia: 6 }, // sábado → recoge el lunes
+    { persona: 'Juanchy', dia: 6 }, // sábado → recoge el lunes
+  ],
+  diasRecoger: 2,
+  hora: '7:00 a.m.', // hora del aviso (el horario real está en .github/workflows/notificaciones.yml)
+};
+
 // Días en que pasa el camión de la basura (0 = domingo … 6 = sábado) y hora.
 export const BASURA = { dias: [3, 6], hora: '6:00 a.m.' };

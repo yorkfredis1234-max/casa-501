@@ -1,8 +1,8 @@
 // 501 · app de la casa
-import { PERSONAS, TAREAS, BASURA } from './config.js';
+import { PERSONAS, TAREAS, BASURA, LAVADO } from './config.js';
 import {
   ahoraBogota, asignacion, martesActual, proximaBasura, sumarDias, diaSemana, fechaLarga,
-  fechaCorta, ventanaVistoAseo, saldos, deudas, DIAS,
+  fechaCorta, ventanaVistoAseo, saldos, deudas, DIAS, ropaDelDia, turnosLavado,
 } from './logica.js';
 import { crearStore, hayFirebase } from './store.js';
 import { VAPID_PUBLIC_KEY } from './firebase-config.js';
@@ -200,6 +200,7 @@ function vistaHoy() {
       </div>
       <div class="amarillo" style="white-space:pre-line">${avisoBasura}</div>
     </div>
+    ${tarjetaLavadora(ahora)}
     <div class="rejilla-2">
       <button class="tarjeta mini" data-accion="pestana" data-id="avisos">
         <span class="etiqueta">Avisos</span><span class="num">${sinLeer}</span>
@@ -215,6 +216,30 @@ function vistaHoy() {
       <span class="aviso-texto">${esc(ultimo.texto)}</span></button>` : ''}
     ${store.modo === 'demo' ? '<p class="sub" style="text-align:center">Modo demo: los datos se guardan solo en este dispositivo hasta que conectes Firebase.</p>' : ''}
   `;
+}
+
+function tarjetaLavadora(ahora) {
+  const hoy = ropaDelDia(ahora.iso);
+  const partes = [];
+  if (hoy.lavan.length) partes.push(`Hoy lava${hoy.lavan.length > 1 ? 'n' : ''} ${listaNombres(hoy.lavan)}`);
+  if (hoy.recogen.length) partes.push(`Hoy recoge${hoy.recogen.length > 1 ? 'n' : ''} la ropa ${listaNombres(hoy.recogen)}`);
+  const titulo = partes.length ? partes.join(' · ') : 'Hoy la lavadora está libre';
+  const dia = (n) => DIAS[n];
+  return `<div class="tarjeta">
+    <div class="tarjeta-cab"><div><span class="etiqueta">Lavadora</span><h2>${esc(titulo)}</h2></div></div>
+    <div class="lista">
+      ${turnosLavado().map((g) => {
+        const activo = g.dia === ahora.dow || g.recoger === ahora.dow;
+        return `<div class="fila" style="${activo ? 'background:var(--acento-suave);border-radius:14px;padding:8px;margin:-8px' : ''}">
+          <span class="pill ${g.dia === ahora.dow ? 'ok' : 'gris'}" style="min-width:52px;text-align:center">${esc(dia(g.dia).slice(0, 3).replace(/^./, (c) => c.toUpperCase()))}</span>
+          <div style="display:flex">${g.personas.map((p) => avatar(p, 'p')).join('')}</div>
+          <div class="fila-texto"><b>${esc(listaNombres(g.personas))}${g.personas.includes(estado.yo) ? ' · tú' : ''}</b>
+            <span class="sub">Lava${g.personas.length > 1 ? 'n' : ''} el ${dia(g.dia)} · recoge${g.personas.length > 1 ? 'n' : ''} el ${dia(g.recoger)}</span></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <span class="sub">Aviso a las ${esc(LAVADO.hora)} el día de lavar y el día de recoger.</span>
+  </div>`;
 }
 
 // ---------- Aseo ----------
