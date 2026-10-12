@@ -5,7 +5,8 @@ name: Notificaciones 501
 #   "50 16 * * 2"    = martes 11:50 a.m.        → recordatorio a quien no ha visto
 #   "50 23 * * 2,5"  = martes y viernes 6:50 p.m. → basura
 #   "*/5 * * * *"    = cada 5 minutos            → avisos nuevos
-#   "50 11 * * *"    = todos los días 6:50 a.m.  → lavadora (lavar / recoger la ropa)
+#   "50 11 * * *"    = todos los días 6:50 a.m.  → lavadora: a quien le toca lavar hoy
+#   "50 21 * * *"    = todos los días 4:50 p.m.  → lavadora: a quien le toca recoger la ropa hoy
 # Se programan 10 minutos antes porque GitHub a veces arranca con unos minutos de retraso.
 on:
   schedule:
@@ -14,6 +15,7 @@ on:
     - cron: '50 23 * * 2,5'
     - cron: '*/5 * * * *'
     - cron: '50 11 * * *'
+    - cron: '50 21 * * *'
   workflow_dispatch:
     inputs:
       modo:
@@ -21,7 +23,7 @@ on:
         required: true
         default: 'prueba'
         type: choice
-        options: [prueba, aseo, recordatorio, basura, avisos, ropa]
+        options: [prueba, aseo, recordatorio, basura, avisos, lavar, recoger]
 
 concurrency:
   group: notificaciones-${{ github.event.schedule || github.event.inputs.modo }}
