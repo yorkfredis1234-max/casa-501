@@ -26,7 +26,9 @@ export const LAVADO = {
     { persona: 'Juanchy', dia: 6 }, // sábado → recoge el lunes
   ],
   diasRecoger: 2,
-  hora: '7:00 a.m.', // hora del aviso (el horario real está en .github/workflows/notificaciones.yml)
+  // Horas de los avisos (el horario real está en .github/workflows/notificaciones.yml)
+  horaLavar: '7:00 a.m.',
+  horaRecoger: '5:00 p.m.',
 };
 
 // Días en que pasa el camión de la basura (0 = domingo … 6 = sábado) y hora.
