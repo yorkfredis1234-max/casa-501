@@ -4,6 +4,8 @@
 //   recordatorio  martes 11:50 a.m. solo a quien no ha visto el aviso ni terminó
 //   basura        martes y viernes 6:50 p.m.  a todos
 //   avisos        cada 5 minutos    avisos nuevos marcados "Notificar a todos"
+//   lavar         todos los días 6:50 a.m.  a quien le toca lavar hoy
+//   recoger       todos los días 4:50 p.m.  a quien le toca recoger la ropa hoy
 //   prueba        manual            una notificación de prueba a todos
 //
 // Uso: node scripts/notificar.mjs <modo>
@@ -17,7 +19,8 @@ const HORARIOS = {
   '50 16 * * 2': 'recordatorio',
   '50 23 * * 2,5': 'basura',
   '*/5 * * * *': 'avisos',
-  '50 11 * * *': 'ropa',
+  '50 11 * * *': 'lavar',
+  '50 21 * * *': 'recoger',
 };
 const modo = (process.argv[2] || '').trim() || HORARIOS[(process.argv[3] || '').trim()];
 const AHORA = process.env.AHORA ? new Date(process.env.AHORA) : new Date();
@@ -151,10 +154,10 @@ const modos = {
       await datos.fusionar(`avisos/${a.id}`, { notificado: true });
     }
   },
-  async ropa(datos) {
+  async lavar(datos) {
     const { iso } = ahoraBogota(AHORA);
-    const { lavan, recogen } = ropaDelDia(iso);
-    console.log(`Lavadora ${fechaLarga(iso)}: lavan ${lavan.join(', ') || 'nadie'} · recogen ${recogen.join(', ') || 'nadie'}`);
+    const { lavan } = ropaDelDia(iso);
+    console.log(`Lavadora ${fechaLarga(iso)}: lavan ${lavan.join(', ') || 'nadie'}`);
     for (const p of lavan) {
       const otros = lavan.filter((n) => n !== p);
       await enviarA(datos, p, {
@@ -163,6 +166,11 @@ const modos = {
         tag: `lavar-${iso}`, url: './',
       });
     }
+  },
+  async recoger(datos) {
+    const { iso } = ahoraBogota(AHORA);
+    const { recogen } = ropaDelDia(iso);
+    console.log(`Lavadora ${fechaLarga(iso)}: recogen ${recogen.join(', ') || 'nadie'}`);
     for (const p of recogen) {
       await enviarA(datos, p, {
         title: 'Recoge tu ropa hoy',
