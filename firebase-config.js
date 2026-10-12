@@ -10,4 +10,4 @@ export const FIREBASE_CONFIG = {
 };
 
 // ⬇️ PEGA AQUÍ la clave pública de notificaciones (paso 3 de la guía, claves.html).
-export const VAPID_PUBLIC_KEY = '';
+export const VAPID_PUBLIC_KEY = 'BDue44tCgywWgpdAIbYsmhY9QXfu3GBVMPFKRmrGUcdZrI2qSZrADJOIdXXWmbhBW67Eb0HrokK96GbV-N35PNA';
