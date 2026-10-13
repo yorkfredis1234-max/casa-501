@@ -30,7 +30,8 @@ function hace(ms) {
   const d = Math.round(h / 24);
   return d === 1 ? 'ayer' : `hace ${d} días`;
 }
-const listaNombres = (ns) => ns.length <= 1 ? ns.join('') : `${ns.slice(0, -1).join(', ')} y ${ns[ns.length - 1]}`;
+const descansan = (asig) => PERSONAS.map((p) => p.nombre).filter((n) => !asig.some((x) => x.persona === n));
+const listaNombres =(ns) => ns.length <= 1 ? ns.join('') : `${ns.slice(0, -1).join(', ')} y ${ns[ns.length - 1]}`;
 const esIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const instalada = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
 
@@ -190,6 +191,7 @@ function vistaHoy() {
         ${asig.map((x) => `<div class="fila">${avatar(x.persona, 'p')}
           <div class="fila-texto"><b>${esc(x.tarea.nombre)}</b><span class="sub">${esc(x.persona)}${x.persona === estado.yo ? ' · tú' : ''}</span></div>
           ${doc.hecho && doc.hecho[x.persona] ? I.circuloOk : I.circulo}</div>`).join('')}
+        ${descansan(asig).length ? `<span class="sub" style="text-align:left">Descansa${descansan(asig).length > 1 ? 'n' : ''}: ${esc(listaNombres(descansan(asig)))}${descansan(asig).includes(estado.yo) ? ' (tú)' : ''}</span>` : ''}
       </div>
     </button>
     <div class="tarjeta oscura" style="flex-direction:row;align-items:center">
@@ -238,7 +240,7 @@ function tarjetaLavadora(ahora) {
         </div>`;
       }).join('')}
     </div>
-    <span class="sub">Aviso a las ${esc(LAVADO.hora)} el día de lavar y el día de recoger.</span>
+    <span class="sub">Aviso a las ${esc(LAVADO.horaLavar)} el día de lavar y a las ${esc(LAVADO.horaRecoger)} el día de recoger.</span>
   </div>`;
 }
 
@@ -250,7 +252,7 @@ function vistaAseo() {
   const doc = estado.aseo[martes] || {};
   const etiquetaSemana = estado.offset === 0 ? 'Esta semana · se ve en vivo' : estado.offset < 0 ? 'Semana pasada' + (estado.offset < -1 ? 's' : '') : 'Próximamente';
   const futuras = [1, 2, 3].map((i) => sumarDias(martes, i * 7));
-  const mensaje = `Aseo del ${fechaLarga(martes)}:\n${asig.map((x) => `${x.tarea.nombre}: ${x.persona}`).join('\n')}\nMarquen en 501 cuando terminen.`;
+  const mensaje = `Aseo del ${fechaLarga(martes)}:\n${asig.map((x) => `${x.tarea.nombre}: ${x.persona}`).join('\n')}${descansan(asig).length ? `\nDescansa: ${listaNombres(descansan(asig))}` : ''}\nMarquen en 501 cuando terminen.`;
   return `
     ${cabecera('Cada martes · rota cada semana', 'Aseo')}
     <div class="semana">
@@ -274,12 +276,16 @@ function vistaAseo() {
         return `<div class="item fila ${mia ? 'mia' : ''}">${avatar(x.persona, 'g')}
           <div class="fila-texto"><b style="font-size:16px">${esc(x.tarea.nombre)}</b>${estadoTxt}</div>${boton}</div>`;
       }).join('')}
+      ${descansan(asig).map((n) => `<div class="item fila ${n === estado.yo ? 'mia' : ''}" style="opacity:.85">${avatar(n, 'g')}
+        <div class="fila-texto"><b style="font-size:16px">Descansa esta semana</b><span class="sub">${esc(n)}${n === estado.yo ? ' · tú' : ''}</span></div></div>`).join('')}
     </div>
     <div class="tarjeta">
       <span class="etiqueta">Próximas semanas</span>
-      <div class="tabla-rot" style="--cols:${TAREAS.length}">
-        <span></span>${TAREAS.map((t) => `<span class="cab">${esc(t.nombre.split(' ')[0])}</span>`).join('')}
-        ${futuras.map((f) => `<b>${fechaCorta(f)}</b>${asignacion(f).map((x) => `<span class="t-${persona(x.persona).color}">${esc(x.persona)}</span>`).join('')}`).join('')}
+      <div style="overflow-x:auto">
+      <div class="tabla-rot" style="--cols:${TAREAS.length + (PERSONAS.length > TAREAS.length ? 1 : 0)}">
+        <span></span>${TAREAS.map((t) => `<span class="cab">${esc(t.nombre.split(' ')[0])}</span>`).join('')}${PERSONAS.length > TAREAS.length ? '<span class="cab">Libre</span>' : ''}
+        ${futuras.map((f) => { const a = asignacion(f); return `<b>${fechaCorta(f)}</b>${a.map((x) => `<span class="t-${persona(x.persona).color}">${esc(x.persona)}</span>`).join('')}${PERSONAS.length > TAREAS.length ? `<span class="t-${persona(descansan(a)[0]).color}">${esc(listaNombres(descansan(a)))}</span>` : ''}`; }).join('')}
+      </div>
       </div>
     </div>
     <div class="tarjeta oscura">
