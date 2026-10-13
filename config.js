@@ -5,7 +5,7 @@ export const PERSONAS = [
   { nombre: 'York',    color: 'azul' },
   { nombre: 'Angeles', color: 'naranja' },
   { nombre: 'Juanchy', color: 'verde'},
-  { nombre: 'Ani', color:'rosado'}
+  { nombre: 'Ani', color:'rosado'},
 ];
 
 // Tareas de aseo de los martes, en orden.
@@ -23,6 +23,7 @@ export const ANCLA = '2026-10-13';
 export const LAVADO = {
   turnos: [
     { persona: 'York',    dia: 3 }, // miércoles → recoge el viernes
+    { persona: 'Ani',    dia: 3 }, // miércoles → recoge el viernes
     { persona: 'Angeles', dia: 6 }, // sábado → recoge el lunes
     { persona: 'Juanchy', dia: 6 }, // sábado → recoge el lunes
   ],
