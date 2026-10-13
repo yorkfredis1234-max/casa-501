@@ -4,7 +4,8 @@
 export const PERSONAS = [
   { nombre: 'York',    color: 'azul' },
   { nombre: 'Angeles', color: 'naranja' },
-  { nombre: 'Juanchy', color: 'verde' },
+  { nombre: 'Juanchy', color: 'verde'},
+  { nombre: 'Ani', color:'rosado'}
 ];
 
 // Tareas de aseo de los martes, en orden.
